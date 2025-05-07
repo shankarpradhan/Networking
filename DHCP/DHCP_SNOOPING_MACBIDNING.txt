@@ -1,0 +1,112 @@
+Server:
+en
+conf t
+ip dhcp excluded-address 192.168.10.1 192.168.10.9
+
+!!!binding
+ip dhcp pool STATIC-CLIENT
+host 192.168.10.5 255.255.255.0
+client-identifier 0100.5079.6668.04 
+
+ip dhcp pool MYPOOL
+
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.1
+dns-server 8.8.8.8
+domain-name example.com
+exit
+
+! Step 6: Make sure the router's interface is up and assigned the correct IP
+interface g0/0
+ip address 192.168.20.1 255.255.255.0
+no shutdown
+int g0/1
+ip add 192.168.10.1 255.255.255.0
+no shutdown
+int g0/2
+ip add 100.1.1.3 255.255.255.0
+no shut
+
+
+
+
+
+
+
+Rogue_Server:
+en
+conf t
+host Rogue_Server
+
+ip dhcp pool MYPOOL
+
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.2
+dns-server 8.8.8.8
+domain-name example.com
+exit
+ip dhcp excluded-address 192.168.10.1 192.168.10.9
+
+
+! Step 6: Make sure the router's interface is up and assigned the correct IP
+interface g0/0
+ip address 192.168.10.2 255.255.255.0
+no shutdown
+
+
+
+Outside:
+en
+conf t
+int g0/0
+ip add 100.1.1.1 255.255.255.0
+no shut
+ip route 192.168.10.0 255.255.255.0 100.1.1.3
+
+Client:
+en
+conf t
+int g0/0
+no shut
+ip address dhcp
+
+client-3/-1  or vpc:
+dhcp
+
+
+
+enable snooping:
+enable
+configure terminal
+
+! STEP 1: Enable DHCP snooping globally
+ip dhcp snooping
+
+! STEP 2: Specify VLANs to protect (e.g., VLAN 10,20)
+ip dhcp snooping vlan 10
+
+! STEP 3: Configure trusted ports (DHCP server or uplink ports)
+interface g0/0
+   description "Legitimate DHCP Server Port"
+   switchport mode access
+   switchport access vlan 10
+   ip dhcp snooping trust
+   no shutdown
+
+! STEP 4: Configure untrusted ports (client access ports - default behavior)
+interface range g0/2-24
+   description "Client Access Ports"
+   switchport mode access
+   switchport access vlan 10
+   ! No 'trust' command = untrusted by default
+   no shutdown
+
+! OPTIONAL: Rate limiting to prevent DHCP starvation attacks
+interface range g0/2-24
+   ip dhcp snooping limit rate 10  ! Allow 10 DHCP packets/sec
+
+! Save configuration
+end
+write memory
+
+
