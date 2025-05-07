@@ -1,0 +1,30 @@
+!!!Relay_Agent:
+en
+conf t
+host Relay_Agent
+int g0/2
+ip add 192.168.10.2 255.255.255.0
+ip helper-addres 100.1.1.1
+no shut
+!
+int g0/1
+ip add 100.1.1.2 255.255.255.252
+no shut
+!
+
+
+
+!!!DHCP:
+en
+conf t
+int g0/0
+ip add 100.1.1.1 255.255.255.252
+no shut
+ip route  0.0.0.0 0.0.0.0 g0/0 100.1.1.2
+ip dhcp pool POOL
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8
+ip dhcp excluded-addres 192.168.10.1 192.168.10.10
+
+
