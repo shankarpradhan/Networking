@@ -16,7 +16,7 @@ dns-server 8.8.8.8
 domain-name example.com
 exit
 
-! Step 6: Make sure the router's interface is up and assigned the correct IP
+! Step 6: Make sure the router's interface is up and assigned the ! correct IP
 interface g0/0
 ip address 192.168.20.1 255.255.255.0
 no shutdown
