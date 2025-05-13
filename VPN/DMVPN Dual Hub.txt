@@ -113,6 +113,8 @@ no sh
 Delhi:
 ip dhcp pool STATIC-CLIENT
 host 10.5.5.5 255.255.255.0
+default-router 10.5.5.10
+dns-server 8.8.8.8
 client-identifier 0100.5079.6668.04
 !
 ip dhcp pool Delhi_Pool
