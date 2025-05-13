@@ -1,0 +1,242 @@
+!!!!!Us_Cisco:
+en
+conf t
+host Us_Cisco
+int g0/0
+ip add 11.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 10.1.1.10 255.255.255.0
+no sh
+!
+int g0/2
+ip add 10.2.2.10 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 g0/0 11.1.1.10
+
+
+
+
+!!!!!!!!GER_Cisco:
+en
+conf t
+host GER_Cisco
+int g0/0
+ip add 15.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 10.6.6.10 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 g0/0 15.1.1.10
+
+
+!!!!!Bengalore
+en
+conf t
+host Bengalore
+int g0/0
+ip add 12.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 10.3.3.10 255.255.255.0
+no sh
+!
+!
+ip route 0.0.0.0 0.0.0.0 g0/0 12.1.1.10
+
+
+
+!!!!!Hyderabad
+en
+conf t
+host Hyderabad
+int g0/0
+ip add 13.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 10.4.4.10 255.255.255.0
+no sh
+!
+!
+ip route 0.0.0.0 0.0.0.0 g0/0 13.1.1.10
+
+
+!!!!!Delhi
+en
+conf t
+host Delhi
+
+int g0/0
+ip add 14.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 10.5.5.10 255.255.255.0
+no sh
+!
+!
+ip route 0.0.0.0 0.0.0.0 g0/0 14.1.1.10
+
+
+!!!!!ISP
+en
+conf t
+host ISP
+int g0/0
+ip add 12.1.1.10 255.255.255.0
+no sh
+!
+int g0/1
+ip add 14.1.1.10 255.255.255.0
+no sh
+!
+int g0/2
+ip add 13.1.1.10 255.255.255.0
+no sh
+!
+int g0/3
+ip add 11.1.1.10 255.255.255.0
+no sh
+!
+int g0/4
+ip add 15.1.1.10 255.255.255.0
+no sh
+!
+
+
+
+
+
+
+
+!!!!!!!!!!!!!!!!!Configuring tunnel interface !!!!!!!!!!!!!!!!!
+!!!Us_Cisco:
+int tunnel 0
+ip add 192.168.1.1 255.255.255.0
+tunnel source 11.1.1.1
+tunnel mode gre multipoint
+no sh 
+
+!!!GER_Cisco:
+int tunnel 0
+ip add 192.168.1.5 255.255.255.0
+tunnel source 15.1.1.1
+tunnel mode gre multipoint 
+no sh
+
+!!!Bengalore:
+int tunnel 0
+ip add 192.168.1.2 255.255.255.0
+tunnel source 12.1.1.1
+tunnel mode gre multipoint 
+no sh
+
+!!!Hyderabad:
+int tunnel 0
+ip add 192.168.1.3 255.255.255.0
+tunnel source 13.1.1.1
+tunnel mode gre multipoint 
+no sh
+
+!!!Delhi:
+int tunnel 0
+ip add 192.168.1.4 255.255.255.0
+tunnel source 14.1.1.1
+tunnel mode gre multipoint 
+no sh
+
+
+!!!!!!!!!!!!! Configuring NHRP Tunnel (tunnel to tunnel mapping) !!!!!!!!!!!!!!
+US_Cisco/Hub:
+int tunnel 0
+ip nhrp network-id 10
+ip nhrp map 192.168.1.5 15.1.1.1
+ip nhrp nhs 192.168.1.5
+
+GER_Cisco/Hub:
+int tunnel 0
+ip nhrp network-id 10
+ip nhrp map 192.168.1.1 11.1.1.1
+ip nhrp nhs 192.168.1.1
+
+Bengalore/Hyderabad/Delhi/Spoke:
+int tunnel 0
+ip nhrp network-id 10
+ip nhrp map 192.168.1.1 11.1.1.1
+ip nhrp nhs 192.168.1.1 
+ip nhrp map 192.168.1.5 15.1.1.1
+ip nhrp nhs 192.168.1.5 
+
+
+
+========= Lan mapping that are present behind tunnel ======
+Us_Cisco:
+router eigrp 100
+network 10.2.2.0
+network 10.1.1.0
+network 192.168.1.0
+
+GER_Cisco:
+router eigrp 100
+network 10.6.6.0
+network 192.168.1.0
+
+Bengalore:
+router eigrp 100
+network 10.3.3.0
+network 192.168.1.0
+
+Hyderabad:
+router eigrp 100
+network 10.4.4.0
+network 192.168.1.0
+
+Delhi:
+router eigrp 100
+network 10.5.5.0
+network 192.168.1.0
+
+================= configure multicast nhrp for adjacency =========
+Us_Cisco/GER_Cisco/Hub:
+int tunnel 0
+ip nhrp map multicast dynamic
+
+Bengalore/Hyderabad/Delhi/Spoke:
+int tunnel 0
+ip nhrp map multicast 11.1.1.1
+ip nhrp map multicast 15.1.1.1
+
+Us_Cisco:
+ip nhrp map multicast 15.1.1.1
+
+GER_Cisco:
+ip nhrp map multicast 11.1.1.1
+
+!!!!!! split-horizon disable on hub, so that the advertise should go using same interface!!!!!
+int tunnel 0
+no ip split-horizon eigrp 100    <asn-no>
+
+!!!!!till now neighbor only with the hub, there is no direct neighborship between spoke and spoke
+!!!!! check using: 
+trace 192.168.1.4  <another-spoke-ip>
+
+
+!!!!! there is two ways to solve this problem,!!!!!
+!!1st way use
+no ip next-hop-self eigrp 100
+
+
+!!!2nd way 
+int tunnel 0
+Us_Cisco/GER_Cisco/Hub:
+ip nhrp redirect
+
+Bengalore/Hyderabad/Delhi/Spoke:
+int tunnel 0
+ip nhrp shortcut
