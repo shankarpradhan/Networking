@@ -1,0 +1,47 @@
+1. 🔸 Backbone Area (Area 0)
+The core of an OSPF network.
+
+All other areas must connect to Area 0 (either directly or via virtual links).
+
+All inter-area traffic must pass through it.
+
+🧠 Think of it as the central highway for routing.
+
+2. 🔸 Standard (Normal) Area
+Can contain internal routers and may learn routes from other areas via ABRs.
+
+Supports all LSA types (1–5, 7).
+
+Can be connected directly to the backbone.
+
+3. 🔸 Stub Area
+Blocks external routes (Type 5 LSAs) from entering the area.
+
+Instead, gets a default route (0.0.0.0) from the ABR.
+
+Reduces routing table size and processing.
+
+🔐 Good for small remote areas.
+
+4. 🔸 Totally Stubby Area (Cisco proprietary)
+Blocks both:
+
+Inter-area routes (Type 3 LSAs)
+
+External routes (Type 5 LSAs)
+
+Gets only a default route from the ABR.
+
+🔒 Even more restrictive than stub — for minimal routing overhead.
+
+5. 🔸 Not-So-Stubby Area (NSSA)
+Allows external routes to be injected into OSPF from within the area (e.g., from a redistribution point).
+
+Instead of Type 5 LSAs, it uses Type 7 LSAs, which are later converted to Type 5 by the ABR.
+
+🌐 Used when external routes (like from another routing protocol) are redistributed into a stub-like area.
+
+6. 🔸 Totally NSSA (Cisco proprietary)
+Like NSSA, but also blocks Type 3 LSAs (inter-area routes).
+
+Only allows default route + Type 7 LSAs from redistributed sources.ś

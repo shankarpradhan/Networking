@@ -301,3 +301,17 @@ ip nhrp redirect
 Bengalore/Hyderabad/Delhi/Spoke:
 int tunnel 0
 ip nhrp shortcut
+
+
+crypto isakmp policy 10
+hash sha
+auth pre
+group 14
+life 86400
+encr aes
+
+crypto isakmp key cisco address 0.0.0.0 0.0.0.0
+
+crypto isakmp transform-set TSET esp-aes esp-sha-hmac
+
+crypto ipsec 
