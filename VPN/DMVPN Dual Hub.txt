@@ -289,11 +289,11 @@ trace 192.168.1.4  <another-spoke-ip>
 
 
 !!!!! there are two steps to solve this problem,!!!!
-!!1st way use
+!!1st step
 no ip next-hop-self eigrp 100
 
 
-!!!2nd way 
+!!!2nd step
 int tunnel 0
 Us_Cisco/GER_Cisco/Hub:
 ip nhrp redirect
