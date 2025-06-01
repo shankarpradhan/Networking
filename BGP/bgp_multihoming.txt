@@ -1,0 +1,116 @@
+!!SERVER:
+en
+conf t
+!
+ho SERVER
+!
+int g0/0 
+ip add 13.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 14.1.1.1 255.255.255.0
+no sh
+
+
+!!JIO:
+en
+conf t
+!
+ho JIO
+!
+int g0/1
+ip add 12.1.1.10 255.255.255.0
+no sh
+!
+int g0/2
+ip add 13.1.1.10 255.255.255.0
+no sh
+!
+
+
+!!AIRTEL:
+en
+conf t
+!
+ho AIRTEL
+!
+int g0/0
+ip add 14.1.1.10 255.255.255.0
+no sh
+!
+int g0/1
+ip add 11.1.1.10 255.255.255.0
+no sh
+!
+
+
+
+
+
+!!LAN:
+en
+conf t
+!
+ho LAN
+!
+int g0/0 
+ip add 11.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 12.1.1.1 255.255.255.0
+no sh
+!
+int g0/2
+ip add 10.1.1.1 255.255.255.0
+no sh
+!
+
+
+
+
+
+!!!!!!!!!! BGP configuration !!!!!!!!!!
+!!LAN:
+router bgp 64509
+neighbor 12.1.1.10 remote-as 64511
+neighbor 11.1.1.10 remote-as 64510
+network 10.1.1.0 mask 255.255.255.0
+!address-family ipv4 unicast
+!maximum-paths 2
+
+
+!!JIO:
+router bgp 64511
+neighbor 12.1.1.1 remote-as 64509
+neighbor 13.1.1.1 remote-as 64508
+neighbor 13.1.1.1 next-hop-self
+neighbor 12.1.1.1 next-hop-self
+network 10.1.1.0 mask 255.255.255.0
+network 10.2.2.0 mask 255.255.255.0
+network 13.1.1.0 mask 255.255.255.0
+network 12.1.1.0 mask 255.255.255.0
+
+
+
+!!AIRTEL:
+router bgp 64510
+neighbor 14.1.1.1 remote-as 64508
+neighbor 11.1.1.1 remote-as 64509
+neighbor 14.1.1.1 next-hop-self
+neighbor 11.1.1.1 next-hop-self
+network 10.1.1.0 mask 255.255.255.0
+network 10.2.2.0 mask 255.255.255.0
+network 14.1.1.0 mask 255.255.255.0
+network 11.1.1.0 mask 255.255.255.0
+
+
+
+!!SERVER:
+router bgp 64508
+neighbor 13.1.1.10 remote-as 64511
+neighbor 14.1.1.10 remote-as 64510
+network 10.2.2.0 mask 255.255.255.0
+
+

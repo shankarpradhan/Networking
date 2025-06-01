@@ -1,0 +1,97 @@
+R1:
+en
+conf t
+!
+ho R1
+!
+int g0/0
+ip add 12.12.12.1 255.255.255.0
+no sh
+!
+int l0
+ip add 10.0.0.1 255.255.255.0
+!
+router bgp 65513
+neighbor 12.12.12.2 remote-as 10
+network 10.0.0.0 mask 255.255.255.0 
+
+
+
+
+R2:
+en
+conf t
+!
+ho R2
+!
+int g0/1
+ip add 23.23.23.2 255.255.255.0
+no sh
+!
+int l0
+ip add 20.0.0.2 255.255.255.0
+!
+router bgp 10
+neighbor 23.23.23.3 remote-as 10
+network 20.0.0.0 mask 255.255.255.0 
+neighbor 12.12.12.1 remote-as 65513
+
+
+
+
+R3:
+en
+conf t
+!
+ho R3
+!
+int g0/0
+ip add 23.23.23.3 255.255.255.0
+no sh
+!
+int g0/2
+ip add 34.34.34.3 255.255.255.0
+no sh
+!
+int l0
+ip add 30.0.0.3 255.255.255.0
+!
+router bgp 10
+network 30.0.0.0 mask 255.255.255.0 
+neighbor 34.34.34.4 remote-as 65514
+neighbor 23.23.23.2 remote-as 10
+
+
+
+R4:
+en
+conf t
+!
+ho R4
+!
+int g0/1
+ip add 34.34.34.4 255.255.255.0
+no sh
+!
+int l0
+ip add 40.0.0.4 255.255.255.0
+!
+router bgp 65514
+neighbor 34.34.34.3 remote-as 10
+network 40.0.0.0 mask 255.255.255.0
+
+
+
+!!!when a router advertises routes to an iBGP peer (within the same autonomous system), 
+!!!it advertises the routes learned from eBGP with the same next-hop IP address. 
+!!!This creates a problem because other iBGP peers might not have reachability to that next hop.
+!
+!Here the router 2 doesn't have routing for 34.34.34.0 and router 3 doesn't have routing for 12.12.12.0
+!solutions: 2types
+!!!advertise networks
+R2 - network 12.12.12.0 mask 255.255.255.0              (redistribute)
+R3 – network 34.34.34.0 mask 255.255.255.0
+or
+R2 - neighbor 23.23.23.3 next-hop-self                  (next-hop-self feature)
+R3 - neighbor 23.23.23.3 next-hop-self
+

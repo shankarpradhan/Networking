@@ -1,0 +1,100 @@
+Features of Ansible
+Feature			Description
+Agentless			No need to install agents on managed nodes (uses SSH or WinRM).
+Simple syntax		Uses YAML to describe automation jobs, readable by humans.
+Idempotent		Running a playbook multiple times won’t change the system if it’s already in the desired state.
+Extensible		Support for modules (Python, PowerShell), custom plugins, and roles.
+Declarative		Focuses on what state the system should be in, not how to get there.
+
+Ansible Components
+Component		Description
+Inventory			List of hosts or groups of hosts to manage (in INI or YAML format).
+Playbook			YAML file describing a set of tasks to perform.
+Module			Unit of work (e.g., install a package,   a file).
+Role				Reusable, structured playbooks with variables, tasks, handlers, etc.
+Variables			Used to customize behavior (defined in vars, inventory, or command line).
+Handlers			Tasks triggered by notify, usually for restarting services.
+
+
+
+///
+Press Ctrl + O → Enter to save
+Press Ctrl + X to exit
+
+
+//🧱 1. Create the directory:
+sudo mkdir -p /etc/ansible
+
+//📁 2. Move your hosts file:
+sudo mv hosts /etc/ansible/hosts
+
+
+
+🧱 1. Check Ansible Version
+ 
+ 
+ 
+ansible --version
+🗂️ 2. Inventory and Ping Test
+📌 Static inventory (e.g. /etc/ansible/hosts)
+ini
+ 
+ 
+[local]
+localhost ansible_connection=local
+✅ Ping a Host or Group
+ 
+ 
+ 
+ansible localhost -m ping
+ansible local -m ping  # if defined in inventory
+🧪 3. Ad-Hoc Commands
+🔄 Run a single module on remote machine(s)
+Task	Command Example
+Ping all hosts	ansible all -m ping
+Run shell command	ansible all -m shell -a "uptime"
+List files in /tmp	ansible all -m shell -a "ls /tmp"
+Check free memory	ansible all -m shell -a "free -m"
+Create a file	ansible all -m file -a "path=/tmp/test.txt state=touch"
+Install package (Debian)	ansible all -m apt -a "name=htop state=present" -b
+
+Add -b if it needs sudo (become)
+
+📜 4. Run a Playbook
+🛠️ Example playbook.yml
+yaml
+ 
+ 
+- name: Test Ping
+  hosts: localhost
+  tasks:
+    - name: Ping the host
+      ping:
+	  
+	  
+▶️ Run the playbook
+ansible-playbook playbook.yml
+
+🧩 5. Check Inventory
+ansible-inventory --list
+
+🧰 6. Debug Module (Print info)
+ansible localhost -m debug -a "msg='Hello from Ansible!'"
+
+📁 7. Dry Run / Check Mode
+ansible-playbook playbook.yml --check
+
+🧪 8. Test YAML Syntax
+ansible-playbook playbook.yml --syntax-check
+
+🧼 9. Clean Cache (if needed)
+ansible all -m meta -a "clear_facts"
+
+✅ Summary: Most Used as Beginner
+Purpose	Command
+Ping test	ansible localhost -m ping
+Run ad-hoc command	ansible all -m shell -a "uptime"
+Run playbook	ansible-playbook playbook.yml
+Install package	ansible all -m apt -a "name=xyz"
+Debug output	ansible all -m debug -a "msg='hello'"
+Dry run	ansible-playbook file.yml --check

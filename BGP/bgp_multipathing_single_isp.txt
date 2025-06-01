@@ -1,0 +1,79 @@
+SERVER:
+en
+conf t
+!
+ho SERVER
+!
+int g0/0 
+ip add 13.1.1.1 255.255.255.0
+no sh
+
+
+ISP:
+en
+conf t
+!
+ho ISP
+!
+int g0/0 
+ip add 11.1.1.10 255.255.255.0
+no sh
+!
+int g0/1
+ip add 12.1.1.10 255.255.255.0
+no sh
+!
+int g0/2
+ip add 13.1.1.10 255.255.255.0
+no sh
+!
+
+
+
+LAN:
+en
+conf t
+!
+ho LAN
+!
+int g0/0 
+ip add 11.1.1.1 255.255.255.0
+no sh
+!
+int g0/1
+ip add 12.1.1.1 255.255.255.0
+no sh
+!
+int g0/2
+ip add 10.1.1.1 255.255.255.0
+no sh
+!
+
+
+
+
+
+!!!!!!!!!! BGP configuration !!!!!!!!!!
+!!LAN:
+router bgp 65512
+neighbor 12.1.1.10 remote-as 64511
+neighbor 11.1.1.10 remote-as 64511
+network 10.1.1.0 mask 255.255.255.0
+address-family ipv4 unicast
+maximum-paths 2
+
+
+!!ISP:
+router bgp 64511
+neighbor 12.1.1.1 remote-as 65512
+neighbor 11.1.1.1 remote-as 65512
+neighbor 13.1.1.1 remote-as 64511
+neighbor 13.1.1.1 next-hop-self
+neighbor 11.1.1.1 next-hop-self
+network 10.1.1.0 mask 255.255.255.0
+network 13.1.1.0 mask 255.255.255.0
+
+!!SERVER:
+router bgp 64511
+neighbor 13.1.1.10 remote-as 64511
+

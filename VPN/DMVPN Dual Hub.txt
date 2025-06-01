@@ -288,7 +288,6 @@ no ip split-horizon eigrp 100    <asn-no>
 trace 192.168.1.4  <another-spoke-ip>
 
 
-!!!!! there is two ways to solve this problem,!!!!!
 !!1st way use
 no ip next-hop-self eigrp 100
 
