@@ -23,7 +23,7 @@ no shut
 ip route  0.0.0.0 0.0.0.0 g0/0 100.1.1.2
 ip dhcp pool POOL
  network 192.168.10.0 255.255.255.0
- default-router 192.168.10.1
+ default-router 192.168.10.2
  dns-server 8.8.8.8
 ip dhcp excluded-addres 192.168.10.1 192.168.10.10
 
