@@ -1,0 +1,8 @@
+| Week  | Focus Area              | Tasks                                                       |
+| ----- | ----------------------- | ----------------------------------------------------------- |
+| **1** | IMAP basics & `imaplib` | Understand mailbox structure, fetch subject lines           |
+| **2** | Parsing emails          | Use `email` module to extract body, attachments             |
+| **3** | Deleting/filtering      | Scripts to delete old or unread mails                       |
+| **4** | Sending emails          | Use `smtplib` to send emails, add attachments               |
+| **5** | Automation ideas        | Schedule scripts (cron/Task Scheduler), combine IMAP + SMTP |
+| **6** | Real use case           | Build a personal mail bot (e.g., auto-notifier)             |

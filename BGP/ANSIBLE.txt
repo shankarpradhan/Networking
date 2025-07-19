@@ -98,3 +98,8 @@ Run playbook	ansible-playbook playbook.yml
 Install package	ansible all -m apt -a "name=xyz"
 Debug output	ansible all -m debug -a "msg='hello'"
 Dry run	ansible-playbook file.yml --check
+
+
+
+
+
