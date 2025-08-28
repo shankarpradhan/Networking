@@ -1,0 +1,171 @@
+======== basic ip configuration =========
+!!R3:
+en
+conf t
+!
+ho R3
+!
+int g0/0
+ipv6 add fd00:192:168:31::3/64
+no sh
+!
+int l0
+ipv6 add fd00:3:3:3::3/64
+!
+
+
+!!R1:
+en
+conf t
+!
+ho R1
+!
+int g0/0
+ipv6 add fd00:192:168:31::1/64
+no sh
+!
+int g0/1
+ipv6 add fd00:172:16:51::1/64
+no sh
+!
+int l0
+ipv6 add fd00:1:1:1::1/64
+!
+
+
+!!R5:
+en
+conf t
+!
+ho R5
+!
+int g0/0
+ipv6 add fd00:172:16:51::5/64
+no sh
+!
+int g0/1
+ipv6 add fd00:172:16:52::5/64
+no sh
+!
+int l1
+ipv6 add fd00:5:5:5::5/64
+!
+
+
+
+!!R2:
+en
+conf t
+!
+ho R2
+!
+int g0/0
+ipv6 add fd00:172:16:52::2/64
+no sh
+!
+int g0/1
+ipv6 add fd00:192:168:42::2/64
+no sh
+!
+int l0
+ipv6 add fd00:2:2:2::2/64
+!
+
+
+
+!!R4:
+en
+conf t
+!
+ho R2
+!
+int g0/0
+ipv6 add fd00:192:168:42::4/64
+no sh
+!
+int l0
+ipv6 add fd00:4:4:4::4/64
+!
+
+
+
+=========== rip configuration ==================
+!!R3:
+ipv6 router rip CCNP
+ipv6 unicast-routing
+int r g0/0,lo 0
+ipv6 rip CCNP enable
+
+
+!!R1:
+ipv6 router rip CCNP
+exit
+ipv6 unicast-routing
+int  g0/0
+ipv6 rip CCNP enable
+int  g0/1
+ipv6 rip CCNP enable
+int  l0
+ipv6 rip CCNP enable
+
+
+!!R5:
+ipv6 router rip CCNP
+ipv6 unicast-routing
+int g0/0
+ipv6 rip CCNP enable
+int l1
+ipv6 rip CCNP enable
+
+
+======= ipv6 eigrp configuration =========
+!!R5:
+ipv6 unicast-routing
+ipv6 router eigrp 50
+no sh
+exit
+int g0/0
+ipv6 eigrp 50
+int l1
+ipv6 eigrp 50
+
+
+!!R2:
+ipv6 unicast-routing
+ipv6 router eigrp 50
+no sh
+exit
+int g0/0
+ipv6 eigrp 50
+int g0/1
+ipv6 eigrp 50
+
+
+!!R4:
+ipv6 unicast-routing
+ipv6 router eigrp 50
+no sh
+int g0/0
+ipv6 eigrp 50
+int l0
+ipv6 eigrp 50
+
+
+
+======== configuration router-id ===========
+!!!!!!! otherwise neighborship is not going to form!!!!!!!!
+!!R4
+ipv6 router eigrp 50
+eigrp router-id 44.44.44.44
+
+
+!!R2
+ipv6 router eigrp 50
+eigrp router-id 22.22.22.22
+
+
+!!R5
+ipv6 router eigrp 50
+eigrp router-id 55.55.55.55
+
+

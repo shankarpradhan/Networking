@@ -1,0 +1,87 @@
+!!R1:
+en
+conf t
+!
+host R1
+!
+ip vrf Network
+ip vrf Software
+!
+int g0/0
+no sh
+int g0/1
+no sh
+int g0/2
+no sh
+!
+int g0/0.2
+encapsulation dot1q 2
+ip vrf forwarding Network
+ip add 192.168.12.1 255.255.255.0
+!
+int g0/0.3
+encapsulation dot1q 3
+ip vrf forwarding Software
+ip add 172.16.12.1 255.255.255.0
+!
+int g0/1.2
+encapsulation dot1q 2
+ip vrf forwarding Network
+ip add 192.168.1.1 255.255.255.0
+!
+int g0/2.2
+encapsulation dot1q 2
+ip vrf forwarding Network
+ip add 172.16.1.2 255.255.255.0
+!
+int g0/2.3
+encapsulation dot1q 3
+ip vrf forwarding Software
+ip add 172.16.2.2 255.255.255.0
+!
+
+
+
+!!R2:
+en
+conf t
+!
+host R2
+!
+ip vrf Network
+ip vrf Software
+!
+int g0/0
+no sh
+int g0/1
+no sh
+int g0/2
+no sh
+int g0/3
+no sh
+!
+int g0/0.2
+encapsulation dot1q 2
+ip vrf forwarding Network
+ip add 192.168.12.2 255.255.255.0
+!
+int g0/0.3
+encapsulation dot1q 3
+ip vrf forwarding Software
+ip add 172.16.12.2 255.255.255.0
+!
+int g0/3.1
+encapsulation dot1q 2
+ip vrf forwarding Network
+ip add 172.16.3.2 255.255.255.0
+!
+int g0/2.2
+encapsulation dot1q 2
+ip vrf forwarding Network
+ip add 192.168.2.2 255.255.255.0
+!
+int g0/2.3
+encapsulation dot1q 3
+ip vrf forwarding Software
+ip add 172.16.2.2 255.255.255.0
+

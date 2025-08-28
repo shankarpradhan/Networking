@@ -1,0 +1,99 @@
+R1:
+en
+conf t
+hostname R1
+
+interface GigabitEthernet0/0
+ ip address 11.1.1.1 255.255.255.0
+ no shutdown
+
+interface l1
+ ip address 10.1.1.1 255.255.255.0
+ no shutdown
+
+ip routing
+ip route 0.0.0.0 255.255.255.0 11.1.1.10
+
+crypto isakmp policy 10
+ encr aes
+ hash sha
+ authentication pre-share
+ group 2
+ lifetime 86400
+
+crypto isakmp key VPN123 address 12.1.1.2
+
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac
+ mode tunnel
+
+access-list 100 permit ip 10.1.1.0 0.0.0.255 10.2.2.0 0.0.0.255
+
+crypto map VPN-MAP 10 ipsec-isakmp
+ set peer 12.1.1.2
+ set transform-set VPN-SET
+ match address 100
+
+interface GigabitEthernet0/0
+ crypto map VPN-MAP
+
+
+
+
+R2:
+en
+conf t
+! Hostname
+hostname R2
+
+interface GigabitEthernet0/1
+ ip address 12.1.1.2 255.255.255.0
+ no shutdown
+
+interface GigabitEthernet0/0
+ ip address 10.2.2.2 255.255.255.0
+ no shutdown
+
+ip routing
+ip route 10.1.1.0 255.255.255.0 12.1.1.10
+
+crypto isakmp policy 10
+ encr aes
+ hash sha
+ authentication pre-share
+ group 2
+ lifetime 86400
+
+crypto isakmp key VPN123 address 11.1.1.1
+
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac
+ mode tunnel
+
+access-list 100 permit ip 10.2.2.0 0.0.0.255 10.1.1.0 0.0.0.255
+
+crypto map VPN-MAP 10 ipsec-isakmp
+ set peer 11.1.1.1
+ set transform-set VPN-SET
+ match address 100
+
+interface GigabitEthernet0/1
+ crypto map VPN-MAP
+
+
+
+
+
+
+ISP:
+en
+conf t
+hostname ISP
+
+interface GigabitEthernet0/0
+ ip address 12.1.1.10 255.255.255.0
+ no shutdown
+
+interface GigabitEthernet0/1
+ ip address 11.1.1.10 255.255.255.0
+ no shutdown
+
+ip routing

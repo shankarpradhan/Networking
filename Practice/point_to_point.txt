@@ -1,0 +1,15 @@
+interface FastEthernet0/0
+ ip address 10.0.0.1 255.255.255.252
+ ip ospf network point-to-point
+!
+router ospf 1
+ network 10.0.0.0 0.0.0.3 area 0
+
+
+
+interface FastEthernet0/0
+ ip address 10.0.0.2 255.255.255.252
+ ip ospf network point-to-point
+!
+router ospf 1
+ network 10.0.0.0 0.0.0.3 area 0

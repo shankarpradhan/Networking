@@ -1,0 +1,141 @@
+R1:
+en
+conf t
+hostname R1
+
+int g0/0
+ ip address 172.16.1.1 255.255.255.0
+ no shutdown
+
+interface l1
+ ip address 10.1.1.1 255.255.255.0
+ no shutdown
+
+ip route 0.0.0.0 0.0.0.0 172.16.1.11
+
+crypto isakmp policy 10
+ hash sha
+ encr aes
+ authentication pre-share
+ group 14
+ lifetime 86400
+
+crypto isakmp key cisco address 12.1.1.2
+
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+ mode tunnel
+
+access-list 100 permit ip host 10.1.1.1 host 10.2.2.2
+
+crypto map CMAP 10 ipsec-isakmp
+ set peer 12.1.1.2
+ set transform-set TSET
+ match address 100
+
+int g0/0
+ crypto map CMAP
+
+
+R2:
+en
+conf t
+! Hostname
+hostname R2
+
+interface GigabitEthernet0/1
+ ip address 12.1.1.2 255.255.255.0
+ no shutdown
+
+interface GigabitEthernet0/0
+ ip address 10.2.2.2 255.255.255.0
+ no shutdown
+
+ip routing
+ip route 0.0.0.0 0.0.0.0 12.1.1.10
+
+crypto isakmp policy 10
+ encr aes
+ hash sha
+ authentication pre-share
+ group 14
+ lifetime 86400
+
+crypto isakmp key cisco address 11.1.1.11
+
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+ mode tunnel
+
+access-list 100 permit ip host 10.2.2.2 host 10.1.1.1
+
+crypto map CMAP 10 ipsec-isakmp
+ set peer 11.1.1.11
+ set transform-set TSET
+ match address 100
+
+interface GigabitEthernet0/1
+ crypto map CMAP
+ 
+ 
+ 
+vios:
+en
+conf t
+host ISP
+!
+int g0/0
+ip add 12.1.1.10 255.255.255.0
+no sh
+int g0/1
+ip add 11.1.1.10 255.255.255.0
+no sh
+ 
+ 
+ASA:
+en
+
+conf t
+int g0/0
+nameif outside
+ip add 11.1.1.1 255.255.255.0 
+no shut
+!
+int g0/1
+nameif inside
+ip add 172.16.1.11 255.255.255.0
+no shut
+exit
+!
+object network R1-NAT
+ host 172.16.1.1
+ nat (inside,outside) static 11.1.1.11
+
+access-list OUTSIDE-IN extended permit udp host 12.1.1.2 host 172.16.1.1 eq 500
+access-list OUTSIDE-IN extended permit udp host 12.1.1.2 host 172.16.1.1 eq 4500
+access-group OUTSIDE-IN in interface outside
+
+!
+route outside 12.1.1.0 255.255.255.0 11.1.1.10
+sh access-list
+sh xlate detail
+sh access-list
+sh nat detail
+
+
+
+
+
+
+
+line vty 0 4
+password cisco
+login
+transport input telnet
+enable password cisco
+
+
+!!! router clear crypto ipsec sa peer <peer_IP> -- router --only for specific peer
+!!! clear crypto session   -  router - clear both phase1 and phase2
+!!! clear crypto sa  -- router --- clear only phase
+
+
+

@@ -1,0 +1,94 @@
+!!!
+ipv6 unicast-routing
+
+
+!!R1:
+en
+conf t
+int f1/0
+ipv6 add 2001:12::1/64 
+no sh
+!
+int f1/1
+ipv6 add 2001:13::1/64
+no sh
+
+
+
+!!R2:
+en
+conf t
+int f1/0
+ipv6 add 2001:12::2/64 
+no sh
+!
+int f0/0
+ip add 172.16.42.2 255.255.255.0
+no sh
+!
+ipv6 route ::/0 2001:12::1
+
+
+
+!!R3:
+en
+conf t
+!
+int f1/1
+ipv6 add 2001:13::3/64
+no sh
+!
+int f1/0
+ip add 172.16.53.3 255.255.255.0
+no sh
+!
+ipv6 route ::/0 2001:13::1
+
+
+
+!!R4:
+en
+conf t
+!
+int f0/0
+ip add 172.16.42.4 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 172.16.42.2
+
+
+
+!!R5:
+en
+conf t
+!
+int f1/0
+ip add 172.16.53.5 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 172.16.53.3
+
+
+
+!!!!!! route through the tunnel
+!!R3:
+ip route 172.16.53.0 255.255.255.0 10.0.0.3
+ip route 172.16.42.0 255.255.255.0 10.0.0.2
+
+======= tunnel configuration==========
+!!R2:
+int tunnel 0
+ip add 10.0.0.2 255.255.255.0
+tunnel source 2001:12::2
+tunnel destination 2001:13::3
+tunnel mode gre ipv6
+
+!!R3:
+int tunnel 0
+ip add 10.0.0.3 255.255.255.0
+tunnel source 2001:13::3
+tunnel destination 2001:12::2
+tunnel mode gre ipv6
+
+
+

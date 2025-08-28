@@ -1,0 +1,21 @@
+!!R3:
+line vty 0 4
+transport input telnet
+login local
+exit
+username shan pri 15 pass shan
+
+!!R1   (periodic, absolutes)
+time-range weekDays
+periodic weekend 7:00 to 8:00
+exit
+access-list BlockWeekDays permit tcp any 10.23.23.3 eq 23 time-range weekDays
+
+
+
+!!!! Syntax
+time-range <name>
+<time-type == periodic || time-type == absolutes> <monday/sunday/weekend/weekday> hh:mm to hh:mm
+exit
+access-list <no> permit <protocol> <source> <destination> eq 23 time-range <name-of-time-range>
+

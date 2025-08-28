@@ -1,0 +1,139 @@
+ex:- ping vrf RED 10.0.12.2
+
+
+!!R1:
+en
+conf t
+int e3/0
+no sh
+!
+ip vrf Software
+ip vrf Network
+!
+int e3/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.2.1 255.255.255.0
+!
+int e3/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network
+ip add 192.168.3.1 255.255.255.0
+!
+int f0/0
+no sh
+!
+int f0/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.12.1 255.255.255.0
+!
+int f0/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network 
+ip add 172.16.12.1 255.255.255.0
+!
+
+
+!!R2:
+en
+conf t
+int e3/0
+no sh
+!
+ip vrf Software
+ip vrf Network
+!
+int e3/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.3.2 255.255.255.0
+!
+int e3/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network
+ip add 192.168.4.2 255.255.255.0
+!
+int f0/0
+no sh
+!
+int f0/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.12.2 255.255.255.0
+!
+int f0/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network 
+ip add 172.16.12.2 255.255.255.0
+!
+int f1/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.23.2 255.255.255.0
+!
+int f1/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network 
+ip add 172.16.23.2 255.255.255.0
+!
+
+
+
+!!R3:
+en
+conf t
+int e3/0
+no sh
+!
+ip vrf Software
+ip vrf Network
+!
+int e3/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.5.3 255.255.255.0
+!
+int e3/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network
+ip add 192.168.6.3 255.255.255.0
+!
+int f0/0
+no sh
+!
+int f1/0.2
+encapsulation dot1q 2
+ip vrf forwarding Software
+ip add 192.168.23.3 255.255.255.0
+!
+int f1/0.3
+encapsulation dot1q 3
+ip vrf forwarding Network 
+ip add 172.16.23.3 255.255.255.0
+!
+
+
+
+
+
+============= IOU1 & IOU2 configuration =====================
+int e3/0
+sw tr en dot1q
+sw mo tr
+!
+vlan 2,3
+ex
+!
+int e3/1
+sw ac vl 2
+!
+int e3/2
+sw ac vl 3
+
+
+
+============= OSPF configuration =================
+router eigrp CCIE
+address-family ipv4 unicast vrf Network autonomous-system 10
+network <netowor> <subnetMask>

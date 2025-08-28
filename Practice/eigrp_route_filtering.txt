@@ -1,0 +1,106 @@
+!!R1:
+en
+conf t
+int g1/0
+ip add 10.1.14.1 255.255.255.0
+no sh
+!
+int l1
+ip add 10.1.1.1 255.255.255.0
+!
+router eigrp 10
+no auto
+network 10.1.14.0 0.0.0.255
+network 10.1.1.0 0.0.0.255
+
+
+!!R3:
+en
+conf t
+int g2/0
+ip add 10.1.34.1 255.255.255.0
+no sh
+!
+int l1
+ip add 10.3.3.2 255.255.255.0
+!
+int l2
+ip add 10.4.4.2 255.255.255.0
+!
+!
+router eigrp 10
+no auto
+network 10.1.34.0 0.0.0.255
+network 10.3.3.0 0.0.0.255
+network 10.4.4.0 0.0.0.255
+
+
+!!R4:
+en
+conf t
+int g1/0
+ip add 10.1.14.4 255.255.255.0
+no sh
+!
+int g2/0
+ip add 10.1.34.4 255.255.255.0
+no sh
+!
+int f4/0
+ip add 10.1.46.4 255.255.255.0
+no sh
+!
+int f5/0
+ip add 10.1.45.4 255.255.255.0
+no sh
+!
+
+
+!!R6:
+en
+conf t
+int f4/0
+ip add 10.1.46.6 255.255.255.0
+no sh
+!
+router eigrp 10
+no auto
+network 10.1.46.0 0.0.0.255
+
+
+!!R5:
+en
+conf t
+int f5/0
+ip add 10.1.45.5 255.255.255.0
+no sh
+!
+router eigrp 10
+no auto
+network 10.1.45.0 0.0.0.255
+
+
+
+!!============== configuration of access-list ==============
+!!block advertisement out of 10.1.1.0 on an interface R1
+ip access-list 100 10.1.1.0 0.0.0.255 log
+access-list 100 permit any
+!
+router eigrp 10
+distribute-list 100 out g1/0
+
+!!block advertisement out of 10.2.2.0 from R4
+ip prefix-list filter_10 deny 10.2.2.0/24
+ip prefix-list filter_10 permit 0.0.0.0/0 le 32
+
+router eigrp 10
+distribute-list prefix filter_10 out f5/0
+!!distribute-list prefix filter_10 out ?
+!! either ? = interface ,,,  empty - all
+
+!!block inbound advertisement of 10.3.3.0 on an interface g2/0
+ip prefix-list block_10330 deny 10.3.3.0/24
+ip prefix-list block_10330 permit 0.0.0.0/0 le 32
+
+router eigrp 10
+distribute-list prefix block_10330 in

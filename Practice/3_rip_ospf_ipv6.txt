@@ -1,0 +1,150 @@
+
+==== basic ipv6 configuration ====
+
+!!R1:
+en
+conf t
+!
+ho R1
+!
+int e3/0
+ipv6 add fd00:192:10:0::1/64
+no sh
+!
+int f0/0
+ipv6 add fd00:172:14:0::1/64
+no sh
+!
+
+
+
+!!R4:
+en
+conf t
+!
+ho R4
+!
+int f0/0
+ipv6 add fd00:172:14:0::4/64
+no sh
+!
+int f1/0
+ipv6 add fd00:45:0:0::4/64
+no sh
+!
+
+
+!!R5:
+en
+conf t
+!
+ho R5
+!
+int f1/0
+ipv6 add fd00:45:0:0::5/64
+no sh
+!
+int f1/1
+ipv6 add fd00:35:0:0::5/64
+no sh
+!
+
+
+!!R3:
+en
+conf t
+!
+ho R3
+!
+int f1/1
+ipv6 add fd00:35:0:0::3/64
+no sh
+!
+int f1/0
+ipv6 add fd00:172:23:0::3/64
+no sh
+!
+
+
+
+!!R2:
+en
+conf t
+!
+ho R2
+!
+int f1/1
+ipv6 add fd00:192:20:0::2/64
+no sh
+!
+int f1/0
+ipv6 add fd00:172:23:0::2/64
+no sh
+!
+
+
+
+
+====== ipv6 rip configuration ======
+!!R1:
+ipv6 unicast-routing
+ipv6 router rip ccie
+int r e3/0, f0/0
+ipv6 rip ccie enable
+
+!!R4:
+ipv6 unicast-routing
+ipv6 router rip ccie
+int r f0/0, f1/0
+ipv6 rip ccie enable
+
+!!R5:
+ipv6 unicast-routing
+ipv6 router rip ccie
+int r f1/0
+ipv6 rip ccie enable
+
+
+
+========= ipv6 ospf configuration ==========
+!!R5:
+ipv6 unicast-routing
+ipv6 router ospf 10
+router-id 5.0.0.5
+ex
+int f1/1
+ipv6 ospf 10 area 0
+
+!!R3
+ipv6 unicast-routing
+ipv6 router ospf 10
+router-id 3.0.0.3
+ex
+int f1/1
+ipv6 ospf 10 area 0
+int f1/0
+ipv6 ospf 10 area 1
+
+!!R2
+ipv6 unicast-routing
+ipv6 router ospf 10
+router-id 2.0.0.2
+ex
+int f1/0
+ipv6 ospf 10 area 1
+int f1/1
+ipv6 ospf 10 area 1
+
+
+
+========= route reditribution ======
+!!R5:
+ipv6 router rip ccie
+redistribute ospf 10
+
+!! remember, in ipv6, connected routes are not redistributed
+redistribute connected
+
+!! without type, the redistribute route advertise the routes with the metric hop count as 20.
+!!solution: use type1
+redistribute connected metric-type 1

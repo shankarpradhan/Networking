@@ -1,0 +1,194 @@
+!!ISP:
+en
+conf t
+!
+int g0/0
+ip add 100.1.1.2 255.255.255.252
+no sh
+!
+int g0/1
+ip add 100.1.1.6 255.255.255.252
+no sh
+!
+int g0/2
+ip add 100.1.1.10 255.255.255.252
+no sh
+!
+int g0/3
+ip add 100.1.1.14 255.255.255.252
+no sh
+
+
+
+!!SG_BR:
+en
+conf t
+!
+int g0/1
+ip add 100.1.1.1 255.255.255.252
+no sh
+!
+int g0/0
+ip add 192.168.10.1 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 100.1.1.2
+
+
+
+
+!!BANG_BR:
+en
+conf t
+!
+int g0/1
+ip add 192.168.40.5 255.255.255.0
+no sh
+!
+int g0/0
+ip add 100.1.1.5 255.255.255.252
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 100.1.1.6
+
+
+
+!!SOUTH_BR:
+en
+conf t
+!
+int g0/0
+ip add 100.1.1.9 255.255.255.252
+no sh
+!
+int g0/1
+ip add 192.168.80.9 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 100.1.1.10
+
+
+
+!!AMERICA_BR:
+en
+conf t
+!
+int g0/0
+ip add 100.1.1.13 255.255.255.252
+no sh
+!
+int g0/1
+ip add 192.168.120.13 255.255.255.0
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 100.1.1.14
+
+
+
+!!SG_TUNNEL:
+crypto isakmp policy 10
+hash sha
+auth pre
+group 5
+encry aes
+!
+crypto isakmp key PASS address 100.1.1.5
+crypto isakmp key PASS address 100.1.1.9
+crypto isakmp key PASS address 100.1.1.13
+!
+access-list 100 permit ip 192.168.10.0 0.0.0.255 192.168.40.0 0.0.0.255
+access-list 100 permit ip 192.168.10.0 0.0.0.255 192.168.80.0 0.0.0.255
+access-list 100 permit ip 192.168.10.0 0.0.0.255 192.168.120.0 0.0.0.255
+!
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+!
+set peer 100.1.1.5
+set peer 100.1.1.9
+set peer 100.1.1.13
+set transform-set TSET
+match address 100
+exit
+!
+int g0/0
+crypto map CMAP
+
+
+
+
+!!BG_TUNNEL:
+crypto isakmp policy 10
+hash sha
+auth pre
+group 5
+encry aes
+!
+crypto isakmp key 0 PASS address 100.1.1.1
+!
+access-list 100 permit ip 192.168.40.0 0.0.0.255 192.168.10.0 0.0.0.255
+!
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+!
+crypto map CMAP 10 ipsec-isakmp
+set peer 100.1.1.1
+set transform-set TSET
+match address 100
+exit
+!
+int g0/0
+crypto map CMAP
+
+
+
+
+!!SOUTH_BR_TUNNEL:
+crypto isakmp policy 10
+hash sha
+auth pre
+group 5
+encry aes
+!
+crypto isakmp key 0 PASS address 100.1.1.1
+!
+access-list 100 permit ip 192.168.80.0 0.0.0.255 192.168.10.0 0.0.0.255
+!
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+!
+crypto map CMAP 10 ipsec-isakmp
+set peer 100.1.1.1
+set transform-set TSET
+match address 100
+exit
+!
+int g0/1
+no crypto map CMAP
+int g0/0
+crypto map CMAP
+
+
+
+!!AMERICA_TUNNEL:
+crypto isakmp policy 10
+hash sha
+auth pre
+group 5
+encry aes
+!
+crypto isakmp key 0 PASS address 100.1.1.1
+!
+access-list 100 permit ip 192.168.120.0 0.0.0.255 192.168.10.0 0.0.0.255
+!
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+!
+crypto map CMAP 10 ipsec-isakmp
+set peer 100.1.1.1
+set transform-set TSET
+match address 100
+exit
+!
+int g0/1
+no crypto map CMAP
+int g0/0
+crypto map CMAP
+
+
+

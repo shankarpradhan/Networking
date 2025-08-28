@@ -1,0 +1,33 @@
+switch:
+en
+conf t
+!
+vlan 10
+  private-vlan community
+vlan 20
+  private-vlan community
+vlan 30
+  private-vlan isolated
+vlan 100
+  private-vlan primary
+  private-vlan association 10,20,30
+ 
+ 
+ 
+ 
+!! configuring private-vlan on host connected port
+int r g1/0-1, g0/0-1, g0/3
+  switchport mode private-vlan host
+
+!! configuring primary vlan on ISP router connected port
+int g0/0
+  switchport private-vlan host-association promiscuous
+  
+int r g1/0-1
+  switchport private-vlan host-association 100 10 
+  
+int r g0/0-1
+  switchport private-vlan host-association 100 20 
+  
+int r g0/3
+  switchport private-vlan host-association 100 30 

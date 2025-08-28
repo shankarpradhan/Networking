@@ -1,0 +1,174 @@
+R1:
+en
+conf t
+hostname R1
+!
+int g0/0
+ ip address 172.16.1.1 255.255.255.0
+ no shutdown
+!
+interface l1
+ ip address 10.1.1.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 172.16.1.11
+
+
+vios:
+en
+conf t
+host ISP
+!
+int g0/0
+ip add 12.1.1.10 255.255.255.0
+no sh
+int g0/1
+ip add 11.1.1.10 255.255.255.0
+no sh
+ 
+
+R2:
+en
+conf t
+hostname R1
+!
+int g0/0
+ ip address 172.16.1.1 255.255.255.0
+ no shutdown
+!
+interface l1
+ ip address 10.2.2.2 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 172.16.1.11
+
+
+
+
+
+
+
+
+ASAv1:
+en
+
+conf t
+!
+! ==== INTERFACES ====
+interface g0/0
+ nameif outside
+ security-level 0
+ ip address 11.1.1.1 255.255.255.0
+ no shutdown
+
+interface g0/1
+ nameif inside
+ security-level 100
+ ip address 172.16.1.11 255.255.255.0
+ no shutdown
+
+! ==== IKEv1 Phase 1 ====
+crypto ikev1 policy 10
+ authentication pre-share
+ encryption aes
+ hash sha
+ group 5
+ lifetime 86400
+
+! ==== Tunnel Group ====
+tunnel-group 12.1.1.2 type ipsec-l2l
+tunnel-group 12.1.1.2 ipsec-attributes
+ ikev1 pre-shared-key cisco
+
+! ==== Define Interesting Traffic (Crypto ACL) ====
+access-list TUNNEL extended permit ip host 10.1.1.1 host 10.2.2.2
+
+! ==== NAT Exemption for VPN Traffic ====
+object	net in_net
+host 172.16.1.1
+nat (inside,outside) static 11.1.1.11
+! ==== IPsec Phase 2 ====
+crypto ipsec ikev1 transform-set TSET esp-aes esp-sha-hmac
+
+! ==== Crypto Map ====
+crypto map CMAP 10 match address TUNNEL
+crypto map CMAP 10 set peer 12.1.1.2
+crypto map CMAP 10 set ikev1 transform-set TSET
+crypto map CMAP interface outside
+
+! ==== Enable IKEv1 ====
+crypto ikev1 enable outside
+!
+route outside 0 0 11.1.1.10
+route inside 10.1.1.0 255.255.255.0 172.16.1.1
+!
+!
+crypto ikev1 enable outside
+!
+access-list OUTSIDE-IN extended permit udp host 12.1.1.2 host 11.1.1.1 eq 500
+access-list OUTSIDE-IN extended permit udp host 12.1.1.2 host 11.1.1.1 eq 4500
+access-group OUTSIDE-IN in interface outside
+
+
+ASAv2:
+en
+
+conf t
+!! INTERFACES !!
+interface g0/0
+ nameif outside
+ security-level 0
+ ip address 12.1.1.2 255.255.255.0
+ no shutdown
+
+interface g0/1
+ nameif inside
+ security-level 100
+ ip address 172.16.1.11 255.255.255.0
+ no shutdown
+
+! ==== IKEv1 Phase 1 ====
+crypto ikev1 policy 10
+ authentication pre-share
+ encryption aes
+ hash sha
+ group 5
+ lifetime 86400
+
+! ==== Tunnel Group ====
+tunnel-group 11.1.1.1 type ipsec-l2l
+tunnel-group 11.1.1.1 ipsec-attributes
+ikev1 pre-shared-key cisco
+
+! ==== Define Interesting Traffic (Crypto ACL) ====
+access-list TUNNEL extended permit ip host 10.2.2.2 host 10.1.1.1
+
+! ==== NAT Exemption for VPN Traffic ====
+object	net in_net
+host 172.16.1.1
+nat (inside,outside) static 12.1.1.11
+! ==== IPsec Phase 2 ====
+crypto ipsec ikev1 transform-set TSET esp-aes esp-sha-hmac
+
+! ==== Crypto Map ====
+crypto map CMAP 10 match address TUNNEL
+crypto map CMAP 10 set peer 11.1.1.1
+crypto map CMAP 10 set ikev1 transform-set TSET
+crypto map CMAP interface outside
+
+! ==== Enable IKEv1 ====
+crypto ikev1 enable outside
+!
+route outside 0 0 12.1.1.10
+route inside 10.2.2.0 255.255.255.0 172.16.1.1
+!
+!
+crypto ikev1 enable outside
+!
+access-list OUTSIDE-IN extended permit udp host 11.1.1.1 host 12.1.1.2 eq 500
+access-list OUTSIDE-IN extended permit udp host host 11.1.1.1 host 12.1.1.2 eq 4500
+access-group OUTSIDE-IN in interface outside
+
+
+
+ 

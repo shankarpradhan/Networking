@@ -1,0 +1,161 @@
+!!R7:
+en
+conf t
+!
+int e1/0
+ip add 172.16.70.7 255.255.255.0
+no sh
+!
+int f0/0
+ip add 172.16.75.7 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 7.7.7.7
+network 172.16.70.0 0.0.0.255 area 2
+network 172.16.75.0 0.0.0.255 area 2
+
+
+!!R6
+en
+conf t
+!
+int e1/0
+ip add 172.16.60.6 255.255.255.0
+no sh
+!
+int f5/0
+ip add 172.16.65.6 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 6.6.6.6
+network 172.16.60.0 0.0.0.255 area 2
+network 172.16.65.0 0.0.0.255 area 2
+
+
+!!R5
+en
+conf t
+!
+int f0/0
+ip add 172.16.75.5 255.255.255.0
+no sh
+!
+int f5/0
+ip add 172.16.65.5 255.255.255.0
+no sh
+!
+int f4/0
+ip add 10.0.85.5 255.255.255.0
+no sh
+!
+int f1/0
+ip add 10.0.95.5 255.255.255.0
+no sh
+!
+int e2/0
+ip add 10.0.50.5 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 5.5.5.5
+network 172.16.65.0 0.0.0.255 area 2
+network 172.16.75.0 0.0.0.255 area 2
+network 10.0.85.0 0.0.0.255 area 0
+network 10.0.95.0 0.0.0.255 area 0
+network 10.0.50.0 0.0.0.255 area 0
+
+
+!!R8
+en
+conf t
+!
+int f0/0
+ip add 10.0.98.8 255.255.255.0
+no sh
+!
+int f4/0
+ip add 10.0.85.8 255.255.255.0
+no sh
+!
+int e1/0
+ip add 10.0.80.8 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 8.8.8.8
+network 10.0.80.0 0.0.0.255 area 0
+network 10.0.85.0 0.0.0.255 area 0
+network 10.0.98.0 0.0.0.255 area 0
+
+
+!!R9
+en
+conf t
+!
+int f4/0
+ip add 10.0.98.9 255.255.255.0
+no sh
+!
+int f0/0
+ip add 10.0.95.9 255.255.255.0
+no sh
+!
+int f2/0
+ip add 192.168.92.9 255.255.255.0
+no sh
+!
+int f2/1
+ip add 192.168.91.9 255.255.255.0
+no sh
+!
+int e1/0
+ip add 10.0.90.9 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 9.9.9.9
+network 10.0.95.0 0.0.0.255 area 0
+network 10.0.90.0 0.0.0.255 area 0
+network 10.0.91.0 0.0.0.255 area 1
+network 10.0.92.0 0.0.0.255 area 1
+network 10.0.98.0 0.0.0.255 area 0
+
+
+!!R12
+en
+conf t
+!
+int f0/0
+ip add 192.168.92.12 255.255.255.0
+no sh
+!
+int f4/0
+ip add 192.168.12.12 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 12.12.12.12
+network 192.168.92.0 0.0.0.255 area 1
+network 192.168.12.0 0.0.0.255 area 1
+
+
+
+!!R11
+en
+conf t
+!
+int f0/0
+ip add 192.168.91.11 255.255.255.0
+no sh
+!
+int f4/0
+ip add 192.168.11.11 255.255.255.0
+no sh
+!
+router ospf 1
+router-id 11.11.11.11
+network 192.168.91.0 0.0.0.255 area 1
+no network 192.168.91.0 0.0.0.255 area 1
+network 192.168.11.0 0.0.0.255 area 1

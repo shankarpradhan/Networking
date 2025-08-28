@@ -1,0 +1,74 @@
+vpc6:
+ip 192.168.10.6 255.255.255.0 192.168.10.7
+
+!!SW2:
+en
+conf t
+interface vlan 1
+	ip address 192.168.1.10 255.255.255.0
+	standby 1 priority 200
+	standby 1 preempt
+	standby 1 ip 192.168.1.1
+	no shutdown	
+	standby 2 priority 100
+	standby 2 preempt
+	standby 2 ip 192.168.1.2
+	standby 2 authentication MyKey
+	
+
+
+!!SW1
+en
+conf t
+interface vlan 1
+	ip address 192.168.1.20 255.255.255.0
+	standby 1 priority 200
+	standby 1 preempt
+	standby 1 ip 192.168.1.1
+	no shutdown
+	standby 2 priority 200
+	standby 2 preempt
+	standby 2 ip 192.168.1.2
+	standby 2 authentication MyKey
+	
+!!SW3
+en
+conf t
+interface vlan 1
+	ip address 192.168.1.30 255.255.255.0
+	standby 1 priority 200
+	standby 1 preempt 
+	standby 1 ip 192.168.1.1
+	no shutdown
+	
+!!ISP 
+en
+conf t
+!
+int g0/0
+ip add 192.168.200.20 255.255.255.0
+no shutdown
+!
+int g0/1
+ip add 192.168.100.10 255.255.255.0
+no shutdown
+!
+int g0/2
+ip add 192.168.30.30 255.255.255.0
+no shutdown
+!
+
+
+router eigrp CCIE
+address-family ipv4 unicast autonomous-system 10
+network 192.168.200.0
+network 192.168.100.0
+network 192.168.30.0
+network 1.1.1.0
+
+router eigrp CCIE
+address-family ipv4 unicast autonomous-system 10
+network 192.168.1.0
+!! show standby
+
+

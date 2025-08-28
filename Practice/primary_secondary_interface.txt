@@ -1,0 +1,31 @@
+!!R1:
+en
+conf t
+!
+int f0/0
+ip add 192.168.12.1 255.255.255.0
+ip address 172.16.10.1 255.255.255.0 secondary
+no sh
+!
+int l1
+ip add 1.1.1.1 255.255.255.255
+!
+router ospf 1
+network 172.16.10.0 0.0.0.255 area 0
+network 192.168.12.0 0.0.0.255 area 0
+
+
+!!R2:
+en
+conf t
+int f0/0
+ip add 192.168.12.2 255.255.255.0
+ip add 172.16.10.2 255.255.255.0 secondary
+no sh
+!
+int l1
+ip add 2.2.2.2 255.255.255.255
+!
+router ospf 1
+network 172.16.10.0 0.0.0.255 area 0
+network 192.168.12.0 0.0.0.255 area 0

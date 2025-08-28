@@ -1,0 +1,138 @@
+R1:
+en
+conf t
+host R1
+int g0/0
+ip add 11.1.1.1 255.255.255.0
+no shut
+int l1
+ip add 10.1.1.1 255.255.255.0
+
+
+ip route 0.0.0.0 0.0.0.0 11.1.1.10
+
+
+crypto isakmp policy 1
+hash md5
+authentication pre-share
+group 2
+encryption des
+lifetime 3600
+!
+crypto isakmp policy 2
+hash sha
+authentication pre-share
+group 2
+encryption des
+lifetime 3600
+ex
+!
+crypto isakmp policy 3
+hash md5
+authentication pre-share
+group 2
+encryption 3des
+lifetime 3600
+ex
+!
+crypto isakmp policy 4
+hash sha
+authentication pre-share
+group 2
+encryption 3des
+lifetime 3600
+ex
+
+!!!!!  Authentication !!!!!!!!
+crypto isakmp key cisco address 15.1.1.1
+
+!!!!!  Authentication for phase 2 !!!!!!!!
+crypto ipsec transform-set TSET esp-3des esp-md5-hmac
+
+!!!! policy based uses access-list  !!!!!!!
+access-list 101 permit 10.1.1.0 0.0.0.255 10.2.2.0 0.0.0.255 
+
+!!!!! Whatever we used in phase 1 & 2 !!!!!!
+crypto map CMAP 10 ipsec-isakmp
+set peer 15.1.1.1
+
+!!!!! access-list apply
+match address 101
+set transform-set TSET
+exit
+
+!!!!! call the crypto map where you wanna apply this rule
+int g0/0
+crypto map CMAP
+
+ 
+
+R2:
+en
+conf t
+host R1
+int g0/0
+ip add 12.1.1.1 255.255.255.0
+no shut
+ip add 10.2.2.2 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 12.1.1.10
+
+
+!!!!!! lifetime <number> 
+
+!!!!!!  sh crypto isakmp policy
+
+!!!!!  Authentication for phase 1 !!!!!!!!
+crypto isakmp key cisco address 11.1.1.1
+
+!!!!!  Authentication for phase 2 !!!!!!!!
+crypto ipsec transform-set TSET esp-3des esp-md5-hmac
+
+!!!!! sh crypto ispec transform-set
+
+!!!!! policy based uses access-list  !!!!!!!
+access-list 101 permit 10.2.2.0 0.0.0.255 10.1.1.0 0.0.0.255 
+
+!!!!! Whatever we used in phase 1 & 2 !!!!!!
+crypto map CMAP 10 ipsec-isakmp
+set peer 11.1.1.1
+
+!!!!! access-list apply
+match address 101
+set transform-set TSET
+
+!!!!! call the crypto map where you wanna apply this rule
+int g0/0
+crypto map CMAP
+
+
+
+R:
+en
+conf t
+host R
+int g0/0
+ip add 15.1.1.10 255.255.255.0
+no shut
+int g0/1
+ip add 12.1.1.10 255.255.255.0
+no shut
+exit
+
+
+
+if we want AH:
+R1:
+crypto ipsec transform-set TSET ah-md5-hmac
+ 
+R2:
+crypto ipsec transform-set TSET ah-md5-hmac
+
+
+!!!!!clear session 
+clear crypto session
+
+
+!!!!! to see crypto
+sh crypto ipsec sa

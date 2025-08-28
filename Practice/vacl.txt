@@ -1,0 +1,11 @@
+ip access-list extended BLOCK_2
+ permit ip host 192.168.1.2 192.168.1.0 0.0.0.255 
+ 
+vlan access-map VMAP 10
+ match ip address BLOCK_2
+ action drop
+vlan access-map VMAP 20
+ action forward
+vlan filter VMAP vlan-list 1
+
+

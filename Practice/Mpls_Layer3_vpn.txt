@@ -1,0 +1,176 @@
+!!PE5
+en
+conf t
+!
+int loo 0
+ip add 10.0.5.5 255.255.255.255
+ip ospf 2 area 0
+!
+int g0/1
+no sh
+ip add 10.0.51.5 255.255.255.0
+ip ospf 2 area 0
+ex
+!
+
+
+!!P1
+en
+conf t
+!
+int loop 0
+ip add 10.0.1.1 255.255.255.255
+ip ospf 2 area 0
+!
+int g0/1
+no sh
+ip add 10.0.51.1 255.255.255.0
+ip ospf 2 area 0
+!
+int g0/3
+no sh
+ip add 10.0.12.1 255.255.255.0
+ip ospf 2 area 0
+
+
+!!P2
+en
+conf t
+!
+int loo 0
+ip add 10.0.2.2 255.255.255.255
+ip ospf 2 area 0
+!
+int g0/1
+no sh
+ip add 10.0.62.2 255.255.255.0
+ip ospf 2 area 0
+!
+int g0/3
+no sh
+ip add 10.0.12.2 255.255.255.0
+ip ospf 2 area 0
+
+
+!!PE6
+en
+conf t
+!
+int loo 0
+ip add 10.0.6.6 255.255.255.255
+ip ospf 2 area 0
+!
+int g0/1
+no sh
+ip add 10.0.62.6 255.255.255.0
+ip ospf 2 area 0
+!
+
+
+
+=================== MPLS Configuration =====================
+!!PE5
+int g0/1
+mpls ip 
+exit
+
+!!P1
+int r g0/1,g0/3
+mpls ip 
+exit
+
+!!P2
+router ospf 2
+mpls ldp autoconfig
+exit
+!!force the router to use loopback as router-id
+mpls ldp router-id loopback0 force
+
+
+
+!!PE6
+int g0/1
+mpls ip
+exit
+
+
+
+=============edge router configuration================
+!!R101:
+en
+conf t
+!
+int loo 0
+ip add 10.0.101.101 255.255.255.0
+!
+int g0/1
+ip add 172.16.101.101 255.255.255.0
+no sh
+!
+!
+router ospf 1
+network 172.16.101.0 0.0.0.255 area 0
+network 10.0.101.0 0.0.0.255 area 0
+
+
+!!CE11:
+en
+conf t
+!
+int loo 0
+ip add 10.0.11.11 255.255.255.0
+!
+int g0/1
+ip add 172.16.101.11 255.255.255.0
+no sh
+!
+int g0/2
+ip add 200.5.11.11 255.255.255.0
+no sh
+!
+router ospf 1
+network 172.16.101.0 0.0.0.255 area 0
+network 10.0.11.0 0.0.0.255 area 0
+network 200.5.11.0 0.0.0.255 area 0
+
+
+
+!!R201:
+en
+conf t
+!
+int loo 0
+ip add 10.0.201.201 255.255.255.0
+!
+int g0/1
+ip add 172.16.201.201 255.255.255.0
+no sh
+!
+!
+router ospf 1
+network 172.16.201.0 0.0.0.255 area 0
+network 10.0.201.0 0.0.0.255 area 0
+
+
+!!CE21:
+en
+conf t
+!
+int loo 0
+ip add 10.0.21.21 255.255.255.0
+!
+int g0/1
+ip add 172.16.201.21 255.255.255.0
+no sh
+!
+int g0/2
+ip add 200.6.21.21 255.255.255.0
+no sh
+!
+router ospf 1
+network 172.16.101.0 0.0.0.255 area 0
+network 10.0.11.0 0.0.0.255 area 0
+network 200.5.11.0 0.0.0.255 area 0
+!!
+!! still
+

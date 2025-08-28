@@ -1,0 +1,74 @@
+!!R2:
+en
+conf t
+!
+ho R2
+!
+int f1/0
+ip add 172.16.20.2 255.255.255.0
+no sh
+!
+int f0/0
+ip add 172.16.52.2 255.255.255.0 
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 172.16.52.5
+
+
+
+!!R3:
+en
+conf t
+!
+ho R3
+!
+int f1/0
+ip add 172.16.30.3 255.255.255.0
+no sh
+!
+int f0/0
+ip add 172.16.53.3 255.255.255.0 
+no sh
+!
+ip route 0.0.0.0 0.0.0.0 172.16.53.5
+
+
+
+!!R5:
+en
+conf t
+!
+ho R5
+!
+int f0/0
+ip add 172.16.52.5 255.255.255.0
+no sh
+!
+int f1/0
+ip add 172.16.53.5 255.255.255.0 
+no sh
+!
+
+
+
+=======  site to site vpn  ===========
+crypto isakmp policy 10
+hash sha
+auth pre
+group 2
+life 10800
+encr aes
+!
+crypto isakmp key CCNP address 172.16.53.3 255.255.255.0
+!
+crypto ipsec transform-set TSET ah-sha-hmac
+!
+ip access-list extended CCNP
+permit ip 172.16.20.0 0.0.0.255 172.16.30.0 0.0.0.255
+
+crypto map CMAP 10 ipsec-isakmp
+set peer 172.16.53.3
+set transform-set TSET
+match address CCNP
+exit
+

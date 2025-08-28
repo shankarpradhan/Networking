@@ -1,0 +1,166 @@
+
+!! R5
+en
+conf t
+hostname R5
+int gi 0/0
+ip add 192.16.51.5 255.255.255.0
+no sh
+exit
+
+int gi 0/3
+ip add 192.168.5.5 255.255.255.0
+no sh
+exit 
+
+
+
+!! R1
+
+en
+conf t
+!
+int g0/0
+ip add 100.1.1.1 255.255.255.0
+no sh
+!
+int gi 0/1
+ip add 192.168.1.1 255.255.255.0
+no sh
+exit 
+
+
+!! R3
+
+en
+conf t
+hostname edge-R2
+int gi 0/1
+ip add 192.16.62.2 255.255.255.0
+no sh
+exit
+!
+int g0/0
+ip add 100.2.2.1 255.255.255.0
+no sh
+!
+int gi 0/3
+ip add 192.168.2.2 255.255.255.0
+no sh
+exit 
+
+WAN CONFIGURATION
+-----------------
+
+!R1
+!
+int gi 0/1
+ip add 100.1.1.1 255.255.255.252
+no sh 
+exit 
+
+ip route 0.0.0.0 0.0.0.0 100.1.1.2
+
+
+
+R2
+!
+int gi 0/0
+ip add 100.2.2.1 255.255.255.252
+no sh 
+exit 
+
+ip route 0.0.0.0 0.0.0.0 100.2.2.2
+
+
+
+!! R4-ISP
+------------------
+ 
+!! EDGE-R1
+
+en
+conf t
+
+int gi 0/0
+ip add 100.2.2.2 255.255.255.252
+no sh
+ex
+
+int gi 0/1
+ip add 100.1.1.2 255.255.255.252 
+no sh
+exit
+
+
+IPSec CONFIGURATION
+---------------------
+
+!! EDGE-R1
+--------------
+
+crypto isakmp policy 10
+authentication pre-share
+encryption aes
+hash md5
+group 2
+exit
+
+crypto isakmp key VPNpass address 100.2.2.1
+
+crypto ipsec transform-set TSET ah-md5-hmac
+exit 
+
+ip access-list extended VPN-ACL
+permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255
+exit
+
+crypto map CMAP 11 ipsec-isakmp
+set transform-set TSET
+set peer 100.2.2.1 
+match address VPN-ACL 
+exit
+
+int gi 0/0
+crypto map CMAP
+exit
+
+
+
+
+
+IPSec CONFIGURATION FOR VPN
+---------------------------
+
+
+!! EDGE-R2
+--------------
+
+!
+!
+
+crypto isakmp policy 10
+authentication pre-share
+encryption aes
+hash md5
+group 2
+exit
+
+crypto isakmp key VPNpass address 100.1.1.1
+
+crypto ipsec transform-set TSET ah-md5-hmac
+exit 
+
+ip access-list extended VPN-ACL
+permit ip 192.168.2.0 0.0.0.255 192.168.1.0 0.0.0.255
+exit
+
+crypto map CMAP 11 ipsec-isakmp
+set transform-set TSET
+set peer 100.1.1.1 
+match address VPN-ACL 
+exit
+
+int gi 0/0
+crypto map CMAP
+exit

@@ -1,0 +1,103 @@
+R3:
+en
+conf t
+host R1
+int g0/0
+ip add 12.1.1.10 255.255.255.0
+no sh
+!
+int g0/1
+ip add 11.1.1.10 255.255.255.0
+no sh
+ex
+
+ASAv4:
+en
+
+conf t
+int g0/1
+nameif inside
+ip add 10.1.1.10 255.255.255.0
+no sh
+!
+int g0/0
+nameif outside
+ip add 11.1.1.1 255.255.255.0
+no sh
+!
+route outside 0.0.0.0 0.0.0.0 11.1.1.10
+!
+!!!!!!policy based!!!!!!!!!
+crypto ikev1 policy 10
+hash sha
+auth pre
+group 5
+encr aes
+
+tunnel-group 12.1.1.1 type ipsec-l2l
+tunnel-group 12.1.1.1 ipsec-attributes
+ikev1 pre-shared-key cisco
+
+crypto ipsec ikev1 transform-set TSET esp-aes esp-sha-hmac
+
+access-list VPN permit ip 172.16.10.0 255.255.255.0 172.16.20.0 255.255.255.0
+
+crypto map CMAP 10 set peer 12.1.1.1
+crypto map CMAP 10 set ikev1 transform-set TSET
+crypto map CMAP 10 match address VPN
+crypto map CMAP interface outside
+
+crypto ikev1 enable outside
+
+object network VPN_IP
+subnet 172.16.10.0 255.255.255.0
+object network IN_NET
+subnet 10.1.1.0 255.255.255.0
+
+nat (inside,outside) static VPN_IP
+
+
+ASAv5:
+en
+
+conf t
+int g0/1
+nameif inside
+ip add 10.1.1.10 255.255.255.0
+no sh
+!
+int g0/0
+nameif outside
+ip add 12.1.1.1 255.255.255.0
+no sh
+!
+route outside 0.0.0.0 0.0.0.0 12.1.1.10
+!
+!!!!!!!!!policy vpn!!!!!!!!!!!
+crypto ikev1 policy 10
+hash sha
+auth pre
+group 5
+encr aes
+
+tunnel-group 11.1.1.1 type ipsec-l2l
+tunnel-group 11.1.1.1 ipsec-attributes
+ikev1 pre-shared-key cisco
+
+crypto ipsec ikev1 transform-set TSET esp-aes esp-sha-hmac
+
+access-list VPN permit ip 172.16.20.0 255.255.255.0 172.16.10.0 255.255.255.0
+
+crypto map CMAP 10 set peer 11.1.1.1
+crypto map CMAP 10 set ikev1 transform-set TSET
+crypto map CMAP 10 match address VPN
+crypto map CMAP interface outside
+
+crypto ikev1 enable outside
+
+object network VPN_IP
+subnet 172.16.20.0 255.255.255.0
+object network IN_NET
+subnet 10.1.1.0 255.255.255.0
+
+nat (inside,outside) static VPN_IP

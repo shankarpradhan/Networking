@@ -1,0 +1,69 @@
+!! R1:
+en
+conf t
+!
+int g0/1
+ip add 10.12.12.1 255.255.255.0
+no sh
+!
+int l1
+ip add 10.10.10.10 255.255.255.255
+!
+router eigrp 10
+network 10.0.0.0
+
+
+!!R2:
+en
+conf t
+!
+int g0/1
+ip add 10.12.12.2 255.255.255.0
+no sh
+!
+int g0/0
+ip add 10.23.23.2 255.255.255.0
+no sh
+!
+router eigrp 10
+network 10.0.0.0
+
+
+!!R3:
+en
+conf t
+!
+int g0/0
+ip add 10.23.23.3 255.255.255.0
+no sh
+!
+router eigrp 10
+network 10.0.0.0
+
+======= standard-acl host =========
+access-list	99 deny host 10.1.1.2
+access-list 99 permit any
+
+======= standard-acl =========
+access-list	99 deny host 10.1.1.2
+access-list 99 permit any
+int g0/1
+  ip access-group 99 in
+
+========= Extended-acl ==========================
+!! Create ACL !!
+access-list 100 deny ip host 10.12.12.1 host 10.23.23.3
+access-list 100 permit ip any any
+
+!! Apply ACL !!
+int g0/1
+ip access-group 100 in
+
+======== Infrastructre ACL =========
+ip access-list extended BlockH1
+deny ip host 10.12.12.1 host 10.23.23.3
+deny tcp any any fragments
+deny udp any any fragments
+deny icmp any any fragments
+deny ip any any fragments
+permit ip any any

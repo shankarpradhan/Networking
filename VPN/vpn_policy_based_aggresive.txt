@@ -1,0 +1,98 @@
+SITE-A:
+en
+conf t
+host SITE-A
+int g0/0
+ip add 11.1.1.1 255.255.255.0
+no shut
+!
+int l1
+ip add 10.1.1.1 255.255.255.0
+!
+ip route 0.0.0.0 0.0.0.0 11.1.1.10
+!
+crypto isakmp policy 10
+hash sha
+auth pre
+group 14
+encr aes
+!
+crypto isakmp peer address 12.1.1.1
+set aggressive-mode password 0 cisco
+set aggressive-mode client-endpoint ipv4-address 11.1.1.1
+
+!! phase-2
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+
+
+!! access-list
+access-list 100 permit ip 10.1.1.0 0.0.0.255 10.2.2.0 0.0.0.255
+
+!!! crypto map, peer, transform-set, match acl
+crypto map CMAP 10 ipsec-isakmp
+set peer 12.1.1.1
+set transform-set TSET
+match address 100
+
+!!!! apply cmap on interface
+int g0/0
+crypto map CMAP
+
+
+
+
+
+SITE-B:
+en
+conf t
+host SITE-A
+int g0/0
+ip add 12.1.1.1 255.255.255.0
+no shut
+!
+int l1
+ip add 10.2.2.2 255.255.255.0
+!
+ip route 0.0.0.0 0.0.0.0 12.1.1.10
+!
+crypto isakmp policy 10
+hash sha
+auth pre
+group 14
+encr aes
+!
+crypto isakmp peer address 11.1.1.1
+set aggressive-mode password 0 cisco
+set aggressive-mode client-endpoint ipv4-address 12.1.1.1
+
+!! phase-2
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac
+
+!! access-list
+access-list 100 permit ip 10.2.2.0 0.0.0.255 10.1.1.0 0.0.0.255
+
+!!! crypto map, peer, transform-set, match acl
+crypto map CMAP 10 ipsec-isakmp
+set peer 11.1.1.1
+set transform-set TSET
+match address 100
+
+!!!! apply cmap on interface
+int g0/0
+crypto map CMAP
+
+
+
+ISP:
+en
+conf t
+host SITE-A
+int g0/0
+ip add 12.1.1.10 255.255.255.0
+no shut
+!
+int g0/1
+ip add 11.1.1.10 255.255.255.0
+no shut
+!
+
