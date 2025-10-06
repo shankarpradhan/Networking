@@ -1,0 +1,75 @@
+
+====================    !!!!! TASK !!!!!!!!    =======================
+1. Create a relay agent on a gateway that forwards DHCP messages 
+from VLAN 10 and VLAN 20 traffic to the DHCP server. Configure 
+the router so that VLAN 10 members receive IP addresses from 
+the 10.1.1.0/24 network, and VLAN 20 members receive IP addresses 
+from the 10.2.2.0/24 network.
+
+2. Management vlan should be 5. To allow traffic from vlan 5, we need 
+at least one port that either allows or has access mode of vlan 5.
+
+3. Configure ssh version 2 on all switches
+======================================================================
+
+
+!! add managemnt vlan 
+int vlan 5
+ip add 192.168.29.22 255.255.255.0
+ 
+!! on a trunk of switch:
+int g0/2        (use on all trunk ports if possible for high connectivity or availability with Management PC)
+sw tr allowed vlan add 5
+
+
+!! configure ssh 
+   host SW<number>
+   ip domain-name cisco.com
+   line vty 0 4
+   transport input ssh
+   exit
+   !
+   line vty 0 4
+   transport input ssh
+   login local
+   exit
+   !
+   username shan privilege 15 password shan
+   ip ssh version 2
+   crypto key generate rsa modulus 1024
+
+
+======================================================================
+
+
+!!Gw:
+en
+conf t
+!
+int g0/0
+no switchport 
+!
+int g0/0.10
+encap dot1q 10
+ip add 10.1.1.1 255.255.255.0
+ip helper-address 10.3.3.254
+!
+int g0/0.20
+encap dot1q 10
+ip add 10.2.2.1 255.255.255.0
+ip helper-address 10.3.3.254
+!
+int g0/2
+no switchport
+ip add 10.3.3.1 255.255.255.0
+
+
+!! SW1 / SW3
+en
+conf t
+!
+int r g0/0-3,g1/0
+sw tr en dot1q
+sw mo tr
+
+

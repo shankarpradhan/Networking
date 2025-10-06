@@ -1,0 +1,19 @@
+ip domain-name cisco.com
+hostname HTTP_SERVER
+!
+username shankar privillege 15 password shankar
+!
+ip http server
+ip http secure-server
+!
+line vty 0 15
+transport input telnet ssh
+login local
+!
+ip http authentication local
+ip http authentication enable
+
+
+!! Error may arise (enter login and password again and again)
+either u entered wrong username and password 
+or check whether the authention local is enable or not

@@ -1,0 +1,13 @@
+!!GW:
+en
+conf t
+!
+int g0/2
+no sh
+!
+ip vrf sales
+ip vrf tech
+!
+int g0/2.10
+encapsulation dot1q 10
+ip vrf forwarding sales
