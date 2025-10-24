@@ -1,0 +1,25 @@
+!!!!!!!!!MST configuration
+spanning-tree mode mst
+  spanning-tree mst configuration
+  name REG1
+  revision 2
+  instance 1 vlan 1-50
+  instance 2 vlan 51-100
+  show pending
+  exit
+
+
+
+!!!!=====(set SW1 root bridge for instance 1 and SW2 root bridge for isntance 2)=====!!!!
+command: spanning-tree mst <instance-no> priority <priority-value>
+
+!! SW1   
+spanning-tree mst 1 priority 4096
+
+!! SW2
+spanning-tree mst 2 priority 4096
+
+!! check
+show spanning-tree mst
+
+show spanning-tree mst interface g0/0
