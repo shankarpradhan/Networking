@@ -1,0 +1,129 @@
+hostname cloud-edge-router
+clock timezone India 5 30
+
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 9.9.9.1 255.255.255.0
+ 
+interface GigabitEthernet0/1
+ no shutdown
+ ip address 6.0.0.2 255.255.255.0
+
+ip route 8.0.0.0 255.0.0.0 6.0.0.1
+
+ntp master
+ntp update-calendar
+
+***Note: Please set the clock of this router, using "clock set" enable mode command.
+
+#######################
+
+hostname internet
+
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 6.0.0.1 255.255.255.0
+
+interface GigabitEthernet0/1
+ no shutdown
+ ip address 8.0.100.1 255.255.255.0
+
+interface GigabitEthernet0/2
+ no shutdown
+ ip address 8.0.1.1 255.255.255.0
+ 
+interface GigabitEthernet0/3
+ no shutdown
+ ip address 8.0.2.1 255.255.255.0
+
+ip route 9.9.9.0 255.255.255.0 6.0.0.2
+
+
+#######################
+
+hostname mpls
+
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 172.16.100.1 255.255.255.0
+
+interface GigabitEthernet0/1
+ no shutdown
+ ip address 172.16.1.1 255.255.255.0
+
+
+
+
+#######################
+
+hostname br1-router
+
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 10.1.1.2 255.255.255.0
+
+interface GigabitEthernet0/1
+ no shutdown
+ ip address 10.1.2.1 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 10.1.1.1
+
+########################################
+hostname br1-user-1
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 10.1.2.50 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 10.1.2.1
+
+########################################
+hostname br2-user-1
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 10.2.1.50 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 10.2.1.1
+
+
+########################################
+hostname dc-server
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 10.100.3.50 255.255.255.0
+
+ip route 0.0.0.0 0.0.0.0 10.100.3.1
+
+
+
+########################################
+hostname dc-router
+interface GigabitEthernet0/0
+ no shutdown
+ ip address 10.100.1.2 255.255.255.0
+ 
+interface GigabitEthernet0/1
+ no shutdown
+ ip address 10.100.2.2 255.255.255.0
+ 
+interface GigabitEthernet0/2
+ no shutdown
+ ip address 10.100.3.1 255.255.255.0
+ 
+router ospf 1
+ router-id 10.255.255.1
+ network 10.100.1.2 0.0.0.0 area 0
+ network 10.100.2.2 0.0.0.0 area 0
+ network 10.100.3.1 0.0.0.0 area 0
+ 
+ en
+ conf t
+ no ip domain-lookup
+ line con 0
+ no exec-timeout
+ logging synch
+ 
+ 
+
+
+
+

@@ -1,0 +1,45 @@
+Certificate Configuration:
+vManage as Certificate authority:
+
+Step-0:
+In vmanage UI, you need to perform following action
+1. set name of your organization from setting tab (vpcorp)
+2. set ip address of the vbond 9.9.9.21
+
+Step-1: Generate the keypair by login in to vshell.
+
+openssl genrsa -out ROOTCA.key 2048
+
+Step:2 Create a self signed certificate:
+openssl req -x509 -new -nodes -key ROOTCA.key -sha256 -days 1024 \-subj "/C=IN/ST=KA/L=BG/O=vpcorp/CN=vpcorp" \-out ROOTCA.pem
+
+Step:3:
+Install self signed certificate:
+request root-cert-chain install /home/admin/ROOTCA.pem
+
+Install the same certificate in UI also. Open this file using cat in vshell of vmanage. 
+change the authentication from cisco to enterprise. paste this cert and click on save and install.
+do not do anything on set CSR properties.
+
+Step-4:
+Generate CSR request for vManage on vmanage and create a file in vshell called vmanage.csr
+
+Step-5
+Sign the CSR
+
+For vManage:
+
+openssl x509 -req -in vmanage.csr \-CA ROOTCA.pem -CAkey ROOTCA.key -CAcreateserial \-out vmanage.crt -days 500 -sha256
+
+For vBond:
+
+openssl x509 -req -in vbond.csr \-CA ROOTCA.pem -CAkey ROOTCA.key -CAcreateserial \-out vbond.crt -days 500 -sha256
+
+For vSmart:
+openssl x509 -req -in vsmart.csr \-CA ROOTCA.pem -CAkey ROOTCA.key -CAcreateserial \-out vsmart.crt -days 500 -sha256
+
+
+
+For registering your edge device, use following data,
+Registering edge nodes:
+Chassis: 6CBD703E-A4B2-B79F-E633-D497881006F0  Token: d802ec7c1c3e4d49863d361dc9107716

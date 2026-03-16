@@ -1,0 +1,6 @@
+terminal emulator:
+We will be able to control our operating system like creating file, folder etc.
+
+Shell:
+It is a kind of translator which convert our text into computer or OS understanable files.
+

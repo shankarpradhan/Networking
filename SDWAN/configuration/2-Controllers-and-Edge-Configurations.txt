@@ -1,0 +1,196 @@
+All Configurations for VPCORP:
+
+
+
+1.VManage:
+##################################################################################################
+
+system
+ host-name             vpcorp-vmanage
+ system-ip             192.168.99.11
+ site-id               9999
+ admin-tech-on-failure
+ sp-organization-name  vpcorp
+ organization-name     vpcorp
+ clock timezone Asia/Kolkata
+ vbond 9.9.9.21
+
+ ntp
+  server 9.9.9.1
+   version 4
+   prefer
+  exit
+ 
+vpn 0
+ no interface eth0
+ interface eth1
+  ip address 9.9.9.11/24
+  tunnel-interface
+   allow-service all
+   !
+  no shutdown
+ !
+ ip route 0.0.0.0/0 9.9.9.1
+!
+vpn 512
+ interface eth0
+  ip address 192.168.1.11/24
+  no shutdown
+ !
+!
+
+########################################################################################
+
+
+2.VBOND:
+##################################################################################################
+system
+ host-name               vpcorp-vbond
+ system-ip               192.168.99.21
+ site-id                 9999
+ admin-tech-on-failure
+ no route-consistency-check
+ organization-name       vpcorp
+ clock timezone Asia/Kolkata
+ vbond 9.9.9.21 local
+ ntp
+  server 9.9.9.1
+   version 4
+   prefer
+  exit 
+  
+vpn 0
+ no interface eth0
+ interface ge0/0
+  ip address 9.9.9.21/24
+  ipv6 dhcp-client
+  tunnel-interface
+   allow-service all
+  no shutdown
+ !
+ ip route 0.0.0.0/0 9.9.9.1
+!
+vpn 512
+ interface eth0
+  ip address 192.168.1.21/24
+  no shutdown
+ !
+ !
+##################################################################################################
+
+3.VSMART-1
+##################################################################################################
+
+system
+ host-name             vpcorp-vsmart-1
+ system-ip             192.168.99.31
+ site-id               9999
+ admin-tech-on-failure
+ organization-name     vpcorp
+ clock timezone Asia/Kolkata
+ vbond 9.9.9.21
+
+ ntp
+  server 9.9.9.1
+   version 4
+   prefer
+  exit
+  
+vpn 0
+ no interface eth0
+ interface eth1
+  ip address 9.9.9.31/24
+  tunnel-interface
+   allow-service all
+   no shutdown
+ !
+ ip route 0.0.0.0/0 9.9.9.1
+!
+vpn 512
+ interface eth0
+  ip address 192.168.1.31/24
+  no shutdown
+ !
+!
+
+##########################################################################################################################
+
+4.VSMART-2
+##################################################################################################
+system
+ host-name             vpcorp-vsmart-2
+ system-ip             192.168.99.32
+ site-id               9999
+ admin-tech-on-failure
+ organization-name     vpcorp
+ clock timezone Asia/Kolkata
+ vbond 9.9.9.21
+ 
+  ntp
+  server 9.9.9.1
+   version 4
+   prefer
+  exit
+ !
+!
+
+vpn 0
+ no interface eth0
+ interface eth1
+  ip address 9.9.9.32/24
+  tunnel-interface
+   allow-service all
+    !
+  no shutdown
+ !
+ ip route 0.0.0.0/0 9.9.9.1
+!
+vpn 512
+ interface eth0
+  ip address 192.168.1.32/24
+  no shutdown
+ !
+!
+
+5. Site-1-Vedge-1
+##################################################################################################
+system
+ host-name               br1-vedge-1
+ system-ip               192.168.200.1
+ site-id                 1
+ sp-organization-name    vpcorp
+ organization-name       vpcorp
+ clock timezone Asia/Kolkata
+ vbond 9.9.9.21
+ 
+ ntp
+  server 9.9.9.1
+   version 4
+   prefer
+  exit
+ !
+vpn 0
+ name transport
+ no interface eth0
+ interface ge0/0
+  description ***Internet-Transport****
+  ip address 8.0.1.2/24
+  tunnel-interface
+   encapsulation ipsec
+   color biz-internet
+   allow-service all
+     !
+  pmtu
+  no shutdown
+ !
+ ip route 0.0.0.0/0 8.0.1.1
+!
+
+vpn 512
+ name management
+ interface eth0
+  description *****management-interface****
+  no shutdown
+ !
+!
+##################################################################################################

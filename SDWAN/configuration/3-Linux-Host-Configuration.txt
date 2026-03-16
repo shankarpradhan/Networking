@@ -1,0 +1,27 @@
+Setting up linux ubuntu machine IP address
+Step-0: check the available interfaces using comand "ip a"
+Step1: got to /etc/netplan and open the 01-network-manager-all.yaml using nano editor
+       sudo nano /etc/netplan/01-network-manager-all.yaml
+
+Step-2: Change this file like this,
+
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+   ens3:
+    dhcp4: no
+    addresses:
+     - 192.168.1.50/24
+    gateway4: 192.168.1.1
+
+   ens4:
+    dhcp4: no
+    addresses:
+     - 9.9.9.50/24
+    gateway4: 9.9.9.1 
+
+Step-3: Apply the configuration 
+
+sudo netplan apply
+
