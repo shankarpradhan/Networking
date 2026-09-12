@@ -1,0 +1,51 @@
+SW1:
+en
+conf t
+!
+int g0/0
+sw tr en dot1q
+sw mo tr
+!
+int g0/1
+sw mo ac
+sw ac vl 10
+!
+int g0/2
+sw mo ac
+sw ac vl 20
+!
+int g0/3
+sw mo ac
+sw ac vl 30
+
+
+SW2:
+en
+conf t
+!
+int g0/0
+sw tr en dot1q
+sw mo tr
+!
+int g0/1
+sw mo ac
+sw ac vl 10
+!
+int g0/2
+sw mo ac
+sw ac vl 20
+!
+int g0/3
+sw mo ac
+sw ac vl 30
+
+vpc:
+ip 10.0.0.9 255.255.255.0
+
+SW2_remove_add_vlan:
+int g0/0
+sw tr allowed vlan remove 10
+!
+sw tr allowed vlan add 10
+
+

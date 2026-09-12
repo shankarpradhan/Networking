@@ -1,0 +1,6 @@
+line vty 0 4
+login local
+transport input telnet ssh
+exit
+
+username shan pri 15 password shan

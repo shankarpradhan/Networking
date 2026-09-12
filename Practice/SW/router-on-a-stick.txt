@@ -1,0 +1,51 @@
+SW1:
+en
+conf t
+!
+int g0/3
+sw tr en dot1q
+sw mo tr
+!
+int g0/0
+sw mo ac
+sw ac vl 30
+!
+int g0/1
+sw mo ac
+sw ac vl 20
+!
+int g0/2
+sw mo ac
+sw ac vl 10
+!
+
+
+R1:
+en
+conf t
+!
+int g0/0
+no shut
+!
+int g0/0.10
+en dot1q 10
+ip add 10.0.0.1 255.255.255.248
+!
+int g0/0.30
+en dot1q 30
+ip add 10.0.0.9 255.255.255.248
+!
+int g0/0.50
+en dot1q 50
+ip add 10.0.0.17 255.255.255.248
+!
+
+
+vpc4:
+ip 10.0.0.2 255.255.255.248 10.0.0.1
+
+vpc5:
+ip 10.0.0.10 255.255.255.248 10.0.0.9
+
+vpc6:
+ip 10.0.0.18 255.255.255.248 10.0.0.17
